@@ -29,6 +29,7 @@ class ShellThrow:
         for _ in range(6):
             mouths_down += random.choice([0, 1])
         self.result = mouths_down
+        self.khal = int(self.has_khal())
         self.moves = ShellThrow.moves_due_result[self.result]
 
     def has_khal(self):
@@ -36,3 +37,7 @@ class ShellThrow:
 
     def reserves_turn(self):
         return self.result in [0, 1, 5, 6]
+
+    def omit_khal(self):
+        self.moves += self.khal
+        self.khal = 0
