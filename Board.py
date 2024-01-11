@@ -1,3 +1,9 @@
+from typing import List, Optional
+
+from Piece import Piece
+from Player import Player
+
+
 class Board:
     PLAYER1_LANE = 1
     PLAYER2_LANE = 2
@@ -15,9 +21,9 @@ class Board:
         # the second is the second player's one
         # the third is the mutual lane that goes around the circumference of board, and has the length of 68
 
-        lengths = [7, 7, self.MAIN_LANE_LENGTH]
+        lengths = [self.MAIN_LANE_LENGTH, 7, 7]
 
-        self.lanes = [[0] * length for length in lengths]
+        self.lanes: List[List[Optional[Piece]]] = [[None] * length for length in lengths]
         # for each block of main lane, it's value will be:
         #   0: if it's empty
         #   1: occupied by first player
@@ -67,3 +73,12 @@ class Board:
 
     def check_if_x_block(self, index):
         return index in self.x_blocks
+
+    def check_ownership(self, index):
+        if not self.lanes[0][index]:
+            return 0
+
+        return self.lanes[0][index].player
+
+    def belongs_to_this_player(self, player: Player, index):
+        return self.check_ownership(index) in [0, player.number]

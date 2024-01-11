@@ -24,7 +24,14 @@ class Player:
 
         self.number = Player.current_player_number
         self.mode = mode
+
         self.pieces = [Piece(player=Player.current_player_number) for _ in range(4)]
+        self.pieces_out_of_game = set()
+        for piece in self.pieces:
+            self.pieces_out_of_game.add(piece)
+
+        self.pieces_in_game = set()
+        self.pieces_in_kitchen = set()
         Player.current_player_number += 1
 
     def make_move(self):
@@ -39,6 +46,7 @@ class Player:
     @staticmethod
     def throw_result_has_khal(throw_result):
         return throw_result in [1, 5]
+
 
     @staticmethod
     def throw_shells():
