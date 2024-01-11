@@ -77,7 +77,6 @@ class Board:
     def check_ownership(self, index):
         if not self.lanes[0][index]:
             return 0
-
         return self.lanes[0][index].player
 
     def belongs_to_this_player(self, player: Player, index):

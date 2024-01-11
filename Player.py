@@ -1,22 +1,11 @@
-import random
-
 from Piece import Piece
+from ShellThrow import ShellThrow
 
 
 class Player:
     current_player_number = 1
     HUMAN = 1
     COMPUTER = 2
-
-    throw_result_moves = {
-        0: 6,
-        1: 10,  # khal
-        2: 2,
-        3: 3,
-        4: 4,
-        5: 24,  # khal
-        6: 12,
-    }
 
     def __init__(self, mode):
         if Player.current_player_number == 3:
@@ -34,23 +23,19 @@ class Player:
         self.pieces_in_kitchen = set()
         Player.current_player_number += 1
 
-    def make_move(self):
-        self.human_move() if self.mode == self.HUMAN else self.computer_move()
+    def make_move(self, can_insert: bool = True):
+        possible_moves = set()
+        throw = ShellThrow()
+        for piece in self.pieces:
+            if piece.study_move(throw) is not None:
+                possible_moves.add(piece)
 
-    def computer_move(self):
-        throw_result = self.throw_shells()
+        self.human_move(possible_moves) if self.mode == self.HUMAN else self.computer_move(possible_moves)
+        if throw.reserves_turn():
+            self.make_move(can_insert=False)
 
-    def human_move(self):
-        throw_result = self.throw_shells()
+    def computer_move(self, possible_moves):
+        pass
 
-    @staticmethod
-    def throw_result_has_khal(throw_result):
-        return throw_result in [1, 5]
-
-
-    @staticmethod
-    def throw_shells():
-        mouths_down = 0
-        for _ in range(6):
-            mouths_down += random.choice([0, 1])
-        return mouths_down
+    def human_move(self, possible_moves):
+        pass

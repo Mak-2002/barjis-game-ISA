@@ -1,6 +1,7 @@
 import copy
 
 from Board import Board
+from ShellThrow import ShellThrow
 
 
 class Piece:
@@ -34,7 +35,7 @@ class Piece:
         self.enter_board()
 
     def __copy__(self):
-        new_piece = Piece(self.player)
+        new_piece = Piece(self.player, self.board)
         new_piece.position = self.position
         new_piece.stage = self.stage
         new_piece.steps_taken = self.steps_taken
@@ -68,7 +69,7 @@ class Piece:
             self.position = steps_taken
         elif steps_taken <= 75:
             self.stage = self.MAIN_LANE
-            self.position = self.board.update_index(0, steps_taken - 7 + (self.player - 1) * 36)
+            self.position = self.board.update_index(0, steps_taken - 7 + (self.player.number - 1) * 36)
         elif steps_taken < 83:
             self.stage = self.SHORT_LANE_LAST_TIME
             self.position = 6 - (steps_taken - 76)
@@ -77,7 +78,9 @@ class Piece:
             self.position = -1
         return self
 
-    def study_move(self, move):
+    def study_move(self, throw: ShellThrow):
         new_piece = copy.copy(self)
-        new_piece.steps_taken += move
+        new_piece.steps_taken += throw.moves
         return new_piece.assign_lane()
+
+    def move(self, move):
