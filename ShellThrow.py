@@ -12,7 +12,7 @@ class ShellThrow:
         6: 12,
     }
 
-    move_name = {
+    move_names = {
         0: 'shakka',
         1: 'dast',
         2: 'dawaq',
@@ -41,3 +41,6 @@ class ShellThrow:
     def omit_khal(self):
         self.moves += self.khal
         self.khal = 0
+
+    def name(self):
+        return self.move_names[self.result]

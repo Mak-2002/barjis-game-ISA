@@ -1,6 +1,7 @@
 import copy
 
 from Board import Board
+from Player import Player
 from ShellThrow import ShellThrow
 
 
@@ -19,7 +20,8 @@ class Piece:
     SHORT_LANE_LAST_TIME = 3
     KITCHEN = 4
 
-    def __init__(self, player, board: Board):
+    def __init__(self, player: Player, board: Board, number: int):
+        self.number = number
         self.board = board
         self.position = 0
         self.stage = 0
@@ -35,7 +37,7 @@ class Piece:
         self.enter_board()
 
     def __copy__(self):
-        new_piece = Piece(self.player, self.board)
+        new_piece = Piece(self.player, self.board, self.number)
         new_piece.position = self.position
         new_piece.stage = self.stage
         new_piece.steps_taken = self.steps_taken
@@ -82,5 +84,11 @@ class Piece:
         new_piece = copy.copy(self)
         new_piece.steps_taken += throw.moves
         return new_piece.assign_lane()
+
+    def get_lane(self):
+        if self.stage in [self.SHORT_LANE_FIRST_TIME, self.SHORT_LANE_LAST_TIME]:
+            return self.player.number
+        else:
+            return 0
 
     def move(self, move):
