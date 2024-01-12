@@ -1,5 +1,7 @@
+import copy
 from collections import defaultdict
 
+from Game import Game
 from Piece import Piece
 from Player import Player
 
@@ -11,7 +13,7 @@ class Board:
     MAIN_LANE_LENGTH = 68
     lengths = [MAIN_LANE_LENGTH, 7, 7]
 
-    def __init__(self, data, game):
+    def __init__(self, game: Game):
         self.x_blocks = set()
         self.game = game
         # data should be a 3d array
@@ -25,7 +27,21 @@ class Board:
         self.piece_count = [defaultdict(int) for _ in range(3)]
         self.piece_ownership_in_main_lane_block = {}
 
+    def fill_board(self, data):
         self.locate_x_blocks(data)
+
+    def __deepcopy__(self, memo):
+        # Create a shallow copy of the object
+        new_board = Board(self.game)
+
+        new_board.x_blocks = copy.deepcopy(self.x_blocks, memo)
+        new_board.game = self.game  # game doesn't need deep copying
+
+        new_board.piece_count = copy.deepcopy(self.piece_count, memo)
+
+        new_board.piece_ownership_in_main_lane_block = copy.deepcopy(self.piece_ownership_in_main_lane_block, memo)
+
+        return new_board
 
     def locate_x_blocks(self, data):
         arm = 0
@@ -89,12 +105,11 @@ class Board:
         self.piece_count[0][index] = 0
 
     def replace_piece(self, old_piece: Piece, new_piece: Piece):
+        # todo: store state
         old_lane = old_piece.get_lane()
         self.piece_count[old_lane][old_piece.position] -= 1
-        if self.piece_count[old_lane][old_piece.position] == 0:
-            self.piece_count[old_lane][old_piece.position] = 0
-            if old_lane == self.MAIN_LANE:
-                self.piece_ownership_in_main_lane_block[old_piece.position] = None
+        if self.piece_count[old_lane][old_piece.position] == 0 and old_lane == self.MAIN_LANE:
+            self.piece_ownership_in_main_lane_block[old_piece.position] = None
 
         new_lane = new_piece.get_lane()
         other_player = self.game.players[3 - new_piece.player.number]

@@ -11,6 +11,7 @@ class Game:
             2: Player(mode=Player.COMPUTER, game=self)
         }
         self.current_player = self.players[1]
+        self.history = []
 
     def switch_turn(self):
         self.current_player = self.players[3 - self.current_player.number]

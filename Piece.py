@@ -90,5 +90,3 @@ class Piece:
             return self.player.number
         else:
             return 0
-
-    def move(self, move):
