@@ -86,13 +86,13 @@ class Board:
         pieces_in_block = [piece for piece in player.pieces_in_game if piece.position == index]
         for piece in pieces_in_block:
             piece.knock_out_of_board()
-        self.piece_count[0] -= {index}
+        self.piece_count[0][index] = 0
 
     def replace_piece(self, old_piece: Piece, new_piece: Piece):
         old_lane = old_piece.get_lane()
         self.piece_count[old_lane][old_piece.position] -= 1
         if self.piece_count[old_lane][old_piece.position] == 0:
-            self.piece_count[old_lane] -= {old_piece.position}
+            self.piece_count[old_lane][old_piece.position] = 0
             if old_lane == self.MAIN_LANE:
                 self.piece_ownership_in_main_lane_block[old_piece.position] = None
 

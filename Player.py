@@ -37,6 +37,8 @@ class Player:
 
         if throw.reserves_turn():
             self.make_move(can_insert=False)
+        else:
+            self.game.switch_turn()
 
     def computer_move(self, throw: ShellThrow, can_insert):
         pass
@@ -75,4 +77,5 @@ class Player:
         for piece in self.pieces_in_game:
             if piece.number == number:
                 self.game.board.replace_piece(piece, piece.study_move(throw))
-
+                return
+        raise Exception(f"you have no pieces with the number {number} in the game")
