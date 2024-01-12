@@ -1,4 +1,3 @@
-from Board import Board
 from Game import Game
 from Piece import Piece
 from ShellThrow import ShellThrow
