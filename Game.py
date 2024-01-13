@@ -4,14 +4,11 @@ from Player import Player
 
 class Game:
 
-    def __init__(self, initial_board_data, computer: bool = True):
-        self.players = {
-            1: Player(mode=Player.HUMAN, game=self),
-            2: Player(mode=Player.COMPUTER if computer else Player.HUMAN, game=self)
-        }
+    def __init__(self, initial_board_data):
+
         self.current_player = self.players[1]
         self.history = []
-        self.board = Board(self)
+        self.board = Board(self, )
         self.board.fill_board(initial_board_data)
 
     def switch_turn(self):

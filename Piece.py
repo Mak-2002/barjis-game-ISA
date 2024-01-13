@@ -1,7 +1,6 @@
 import copy
 
 from Board import Board
-from Player import Player
 from ShellThrow import ShellThrow
 
 
@@ -15,51 +14,42 @@ class Piece:
     """
 
     OUT_OF_BOARD = 0
-    SHORT_LANE_FIRST_TIME = 1
-    MAIN_LANE = 2
-    SHORT_LANE_LAST_TIME = 3
-    KITCHEN = 4
+    IN_BOARD = 1
+    IN_KITCHEN = 2
 
-    def __init__(self, player: Player, board: Board, number: int):
+    def __init__(self, player_id: int, number: int):
         self.number = number
-        self.board = board
-        self.position = 0
-        self.stage = 0
-        # stage:
-        #   0: out of board
-        #   1: in it's 7-block lane for the first time
-        #   2: in main lane
-        #   3: in it's 7-block for the last time
-        #   4: in kitchen
+        self.player_id = player_id
+        self.position = -1
+        self.lane = -1
+        self.last_lane = False
+        self.status = Piece.OUT_OF_BOARD
         self.steps_taken = 0
-        self.player = player
-
-        self.enter_board()
 
     def __copy__(self):
-        new_piece = Piece(self.player, self.board, self.number)
+        new_piece = Piece(self.player_id, self.number)
         new_piece.position = self.position
-        new_piece.stage = self.stage
+        new_piece.lane = self.lane
+        new_piece.last_lane = self.last_lane
+        new_piece.status = self.status
         new_piece.steps_taken = self.steps_taken
+        return new_piece
 
     def knock_out_of_board(self):
         self.position = -1
-        self.stage = self.OUT_OF_BOARD
-        self.player.pieces_in_game.discard(self)
-        self.player.pieces_out_of_game.add(self)
+        self.lane = -1
+        self.status = Piece.OUT_OF_BOARD
 
     def enter_board(self):
         self.position = 0
         self.steps_taken = 0
-        self.stage = self.SHORT_LANE_FIRST_TIME
-        self.player.pieces_in_game.add(self)
-        self.player.pieces_out_of_game.discard(self)
+        self.lane = self.player_id
+        self.status = Piece.IN_BOARD
 
     def enter_kitchen(self):
         self.position = -1
-        self.stage = self.KITCHEN
-        self.player.pieces_in_kitchen.add(self)
-        self.player.pieces_in_game.discard(self)
+        self.lane = -1
+        self.status = Piece.IN_KITCHEN
 
     def assign_lane(self):
         steps_taken = self.steps_taken
@@ -67,26 +57,21 @@ class Piece:
             return None
 
         if steps_taken <= 6:
-            self.stage = self.SHORT_LANE_FIRST_TIME
             self.position = steps_taken
+            self.lane = self.player_id
+            self.last_lane = False
         elif steps_taken <= 75:
-            self.stage = self.MAIN_LANE
-            self.position = self.board.update_index(0, steps_taken - 7 + (self.player.number - 1) * 36)
+            self.lane = 0
+            self.position = Board.update_index(0, steps_taken - 7 + (self.player_id - 1) * 36)
         elif steps_taken < 83:
-            self.stage = self.SHORT_LANE_LAST_TIME
             self.position = 6 - (steps_taken - 76)
+            self.lane = self.player_id
+            self.last_lane = True
         elif steps_taken == 83:
-            self.stage = self.KITCHEN
-            self.position = -1
+            self.enter_kitchen()
         return self
 
-    def study_move(self, throw: ShellThrow):
+    def get_new_piece_after_applying_move(self, throw: ShellThrow):
         new_piece = copy.copy(self)
         new_piece.steps_taken += throw.moves
         return new_piece.assign_lane()
-
-    def get_lane(self):
-        if self.stage in [self.SHORT_LANE_FIRST_TIME, self.SHORT_LANE_LAST_TIME]:
-            return self.player.number
-        else:
-            return 0
