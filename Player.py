@@ -48,6 +48,8 @@ class Player:
         pass
 
     def human_move(self, throw: ShellThrow, can_insert):
+        print(self.game.board)
+
         insert_piece = False
         print(f"you have {throw.name()}")
         if can_insert and self.pieces_out_of_game and throw.has_khal():
