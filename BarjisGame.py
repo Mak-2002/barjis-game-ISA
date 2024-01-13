@@ -1,5 +1,6 @@
 from Board import Board
 from Player import Player
+from ShellThrow import ShellThrow
 from State import State
 
 
@@ -25,10 +26,27 @@ class BarjisGame:
             return state.cost
         if depth == 0:
             state.cost = state.heuristic()
-        if state.player_id == 1:  # is maximizing player
-            max_evaluation = float('-inf')
-        for:
-            pass
+        expected_value = 0
+        children = state.children
+        for i in range(7):
+            evaluation_value = 0
+            if state.player_id == 1:  # maximizing player
+                evaluation_value = float('-inf')
+                for child in children[i]:
+                    evaluation_value = max(BarjisGame.expectiminimax_from_current_state(child, depth - 1),
+                                           evaluation_value)
+                expected_value += evaluation_value * ShellThrow.probability[i]
+            else:  # minimizing player
+                evaluation_value = float('inf')
+                for child in children[i]:
+                    evaluation_value = min(BarjisGame.expectiminimax_from_current_state(child, depth - 1),
+                                           evaluation_value)
+                expected_value += evaluation_value * ShellThrow.probability[i]
+            state.cost = expected_value
+            for child in children[i]:
+                if child.cost == evaluation_value:
+                    state.best_child[i] = child
+                    break
 
     def has_ended(self):
         return self.current_state.is_terminal()

@@ -16,7 +16,8 @@ class State:
         self.throw = throw
         self.player_consecutive_moves = player_consecutive_moves
         self.parent = parent_state
-        self.best_child = None
+        self.children = self.get_children()
+        self.best_child = [None for _ in range(7)]
         self.cost = 0
 
     def __eq__(self, other):
@@ -64,9 +65,14 @@ class State:
                 return i
         return 0
 
+    def sign_due_to_player(self):
+        if self.previous_player_id == 1:
+            return 1
+        return -1
+
     def get_children(self):
         player_id = self.player_id
-        children = []
+        children = [[] for i in range(7)]
         board = self.board
         for i in range(7):
             throw = ShellThrow(i)
@@ -84,15 +90,29 @@ class State:
                     for piece in board_after_insertion.get_player_pieces(player_id, Piece.IN_BOARD):
                         new_board = board_after_insertion.move_piece_and_copy(piece, throw)
                         if new_board is not None:
-                            children.append(State(new_board, player_id, next_player_id, throw, move_count, self))
+                            children[i].append(State(new_board, player_id, next_player_id, throw, move_count, self))
 
                 throw = ShellThrow(i).omit_khal()
                 for piece in self.board.get_player_pieces(player_id, Piece.IN_BOARD):
                     new_board = self.board.move_piece_and_copy(piece, throw)
                     if new_board is not None:
-                        children.append(State(new_board, player_id, next_player_id, throw, move_count, self))
+                        children[i].append(State(new_board, player_id, next_player_id, throw, move_count, self))
         return children
 
     def is_terminal(self):
         return max(len(self.board.get_player_pieces(1, Piece.IN_KITCHEN)),
                    len(self.board.get_player_pieces(2, Piece.IN_KITCHEN))) == 4
+
+    def heuristic(self):
+        score = 0
+        for piece in self.board.pieces:
+            sign = 1 if piece.player_id == 1 else -1
+            if piece.status == Piece.IN_KITCHEN:
+                score += 100 * sign
+            elif piece.status == Piece.IN_BOARD:
+                if piece.lane == piece.player_id and piece.last_lane:
+                    score += 15 * sign
+                score += piece.steps_taken * sign
+                if piece.lane == 0 and piece.position in self.board.x_blocks:
+                    score += 10 * sign
+        return score
