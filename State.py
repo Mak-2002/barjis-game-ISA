@@ -1,16 +1,16 @@
-import copy
-
 from Board import Board
 from Piece import Piece
-from Player import Player
 from ShellThrow import ShellThrow
 
 
 class State:
-    def __init__(self, board: Board, player: Player, parent_state=None):
-        self.parent = parent_state
+    def __init__(self, board: Board, player_id, previous_player_id, player_consecutive_moves=1, parent_state=None):
         self.board = board
-        self.player = player
+        self.player_id = player_id
+        self.previous_player_id = previous_player_id
+        self.parent = parent_state
+        self.player_consecutive_moves = player_consecutive_moves
+        self.cost = self.ludo_heuristic()
 
     def ludo_heuristic(self, player_id):  # TODO
         """
@@ -49,13 +49,30 @@ class State:
         return score
 
     def get_children(self):
+        player_id = self.player_id
+        children = []
         board = self.board
         for i in range(7):
             throw = ShellThrow(i)
 
+            if throw.reserves_turn() and self.player_consecutive_moves < 10:
+                next_player_id = player_id
+                move_count = self.player_consecutive_moves + 1
+            else:
+                next_player_id = 3 - player_id
+                move_count = 1
 
-    def get_state_after_move(self, piece: Piece, throw: ShellThrow):
-        new_piece = piece.get_new_piece_after_applying_move(throw)
-        if new_piece is None:
-            return None
-        return State(self.board, self.player, piece, new_piece, bool(throw.khal), self)
+            if throw.has_khal():
+                board_after_insertion = board.insert_piece_and_copy(player_id)
+                if board_after_insertion is not None:
+                    for piece in board_after_insertion.get_player_pieces(player_id, Piece.IN_BOARD):
+                        new_board = board_after_insertion.move_piece_and_copy(piece, throw)
+                        if new_board is not None:
+                            children.append(State(new_board, next_player_id, player_id, move_count, self))
+
+                throw = ShellThrow(i).omit_khal()
+                for piece in self.board.get_player_pieces(player_id, Piece.IN_BOARD):
+                    new_board = self.board.move_piece_and_copy(piece, throw)
+                    if new_board is not None:
+                        children.append(State(new_board, next_player_id, player_id, move_count, self))
+        return children

@@ -61,7 +61,7 @@ class Piece:
             self.lane = self.player_id
             self.last_lane = False
         elif steps_taken <= 75:
-            self.lane = 0
+            self.lane = Board.MAIN_LANE
             self.position = Board.update_index(0, steps_taken - 7 + (self.player_id - 1) * 36)
         elif steps_taken < 83:
             self.position = 6 - (steps_taken - 76)

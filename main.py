@@ -1,5 +1,5 @@
 import initial_data
-from Game import Game
+from BarjisGame import BarjisGame
 
-game = Game(initial_data.board, computer=False)
+game = BarjisGame(initial_data.board, computer=False)
 game.start()
