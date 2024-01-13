@@ -35,6 +35,10 @@ class Piece:
         new_piece.steps_taken = self.steps_taken
         return new_piece
 
+    def __eq__(self, other):
+        return (isinstance(other, Piece) and self.number == other.number and self.status == other.status and
+                self.steps_taken == other.steps_taken)
+
     def knock_out_of_board(self):
         self.position = -1
         self.lane = -1

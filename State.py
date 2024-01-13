@@ -4,13 +4,23 @@ from ShellThrow import ShellThrow
 
 
 class State:
-    def __init__(self, board: Board, player_id, previous_player_id, player_consecutive_moves=1, parent_state=None):
+    def __init__(self, board: Board,
+                 previous_player_id,
+                 player_id,
+                 throw: ShellThrow = None,
+                 player_consecutive_moves=1,
+                 parent_state=None):
         self.board = board
-        self.player_id = player_id
         self.previous_player_id = previous_player_id
-        self.parent = parent_state
+        self.player_id = player_id
+        self.throw = throw
         self.player_consecutive_moves = player_consecutive_moves
-        self.cost = self.ludo_heuristic()
+        self.parent = parent_state
+        self.best_child = None
+        self.cost = 0
+
+    def __eq__(self, other):
+        return self.player_id == other.player_id and self.board == other.board
 
     def ludo_heuristic(self, player_id):  # TODO
         """
@@ -48,6 +58,12 @@ class State:
         # Adjust weights here based on playtesting and preference
         return score
 
+    def winner(self):
+        for i in range(1, 3):
+            if len(self.board.get_player_pieces(i, Piece.IN_KITCHEN)) == 4:
+                return i
+        return 0
+
     def get_children(self):
         player_id = self.player_id
         children = []
@@ -68,11 +84,15 @@ class State:
                     for piece in board_after_insertion.get_player_pieces(player_id, Piece.IN_BOARD):
                         new_board = board_after_insertion.move_piece_and_copy(piece, throw)
                         if new_board is not None:
-                            children.append(State(new_board, next_player_id, player_id, move_count, self))
+                            children.append(State(new_board, player_id, next_player_id, throw, move_count, self))
 
                 throw = ShellThrow(i).omit_khal()
                 for piece in self.board.get_player_pieces(player_id, Piece.IN_BOARD):
                     new_board = self.board.move_piece_and_copy(piece, throw)
                     if new_board is not None:
-                        children.append(State(new_board, next_player_id, player_id, move_count, self))
+                        children.append(State(new_board, player_id, next_player_id, throw, move_count, self))
         return children
+
+    def is_terminal(self):
+        return max(len(self.board.get_player_pieces(1, Piece.IN_KITCHEN)),
+                   len(self.board.get_player_pieces(2, Piece.IN_KITCHEN))) == 4

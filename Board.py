@@ -15,7 +15,6 @@ class Board:
     lengths = [MAIN_LANE_LENGTH, 7, 7]
 
     def __init__(self, initial_data=None):
-
         self.pieces: List[Piece] = []
 
         self.players = {
@@ -38,6 +37,12 @@ class Board:
 
         for i in range(5, 9):
             self.pieces.append(Piece(2, i))
+
+    def __eq__(self, other):
+        are_equal = True
+        for i in range(1, 9):
+            are_equal = self.pieces[i] == other.pieces[i]
+        return are_equal
 
     def __deepcopy__(self):
         new_board = Board()
