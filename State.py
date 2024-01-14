@@ -60,7 +60,7 @@ class State:
         movable_pieces = [piece for piece in pieces_in_board if piece.apply_move_and_copy(throw, board)]
         if movable_pieces:
             print('Pieces you can move:\n', ', '.join(str(piece.number) for piece in movable_pieces))
-            choice = int(input('choose number to move: '))
+            choice = int(input('choose piece number to move it : '))
             board.pieces[choice] = board.pieces[choice].apply_move_and_copy(throw, board)
         else:
             print('no pieces can be moved :(')
@@ -123,9 +123,9 @@ class State:
             if piece.status == Piece.IN_KITCHEN:
                 score += 100 * sign
             elif piece.status == Piece.IN_BOARD:
+                score += piece.steps_taken * sign
                 if piece.lane == piece.player_id and piece.last_lane:
                     score += 15 * sign
-                score += piece.steps_taken * sign
                 if piece.lane == Board.MAIN_LANE and piece.position in self.board.x_blocks:
                     score += 10 * sign
         return score

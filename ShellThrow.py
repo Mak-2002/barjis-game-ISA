@@ -55,5 +55,6 @@ class ShellThrow:
         return self.result in [0, 1, 5, 6]
 
     def omit_khal(self):
-        self.moves += self.khal
+        if self.khal != 0:
+            self.moves += self.khal
         self.khal = 0
