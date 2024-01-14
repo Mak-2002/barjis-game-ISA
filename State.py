@@ -64,22 +64,25 @@ class State:
             board.pieces[choice] = board.pieces[choice].apply_move_and_copy(throw, board)
         else:
             print('no pieces can be moved :(')
-        if not self.children:
+        if not self.children[throw.result]:
             BarjisGame.expectiminimax_from_state(self)
         for child in self.children[throw.result]:
             if child.board == board:
                 return child
+        return self.children[throw.result][0]
 
     def computer_play(self):
         throw = ShellThrow()
         if not self.best_child[throw.result]:
             BarjisGame.expectiminimax_from_state(self)
 
+        if not self.best_child[throw.result]:
+            return self.children[throw.result].pop()
         return self.best_child[throw.result]
 
     def get_children(self):
         player_id = self.player_id
-        children = [[] for i in range(7)]
+        children: List[List[State]] = [[] for i in range(7)]
         for i in range(7):
             throw = ShellThrow(i)
 
@@ -100,12 +103,13 @@ class State:
 
                 throw = ShellThrow(i)
                 throw.omit_khal()
-                for piece in self.board.get_player_pieces(player_id, Piece.IN_BOARD):
-                    new_board = self.board.move_piece_and_copy(piece, throw)
-                    if new_board is not None:
-                        children[i].append(State(new_board, player_id, next_player_id, move_count, self))
-                if not children[i]:
-                    children[i].append(State(copy.deepcopy(self.board), player_id, next_player_id, move_count, self))
+            for piece in self.board.get_player_pieces(player_id, Piece.IN_BOARD):
+                new_board = self.board.move_piece_and_copy(piece, throw)
+                if new_board is not None:
+                    children[i].append(State(new_board, player_id, next_player_id, move_count, self))
+
+            if not children[i]:
+                children[i].append(State(copy.deepcopy(self.board), player_id, next_player_id, move_count, self))
         return children
 
     def is_terminal(self):

@@ -29,18 +29,22 @@ left_arm = [
 ]
 
 
+def rotate_clockwise(arr):
+    return list(zip(*arr[::-1]))
+
+
 # Function to print the board with all four arms
 def get_board_str(top, right, bottom, left):
     middle = [
-        [' ', ' ', ' '],
-        [' ', ' ', ' '],
-        [' ', ' ', ' ']
+        ['*', '*', '*'],
+        ['*', '*', '*'],
+        ['*', '*', '*']
     ]
     # Convert arrays to string representation
-    top_str = array_to_string(list(zip(*top))[::-1])
-    right_str = array_to_string([row[::-1] for row in right])
-    bottom_str = array_to_string(list(zip(*bottom[::-1])))
-    left_str = array_to_string(left)
+    top_str = array_to_string(rotate_clockwise(rotate_clockwise(rotate_clockwise(top))))
+    right_str = array_to_string(right)
+    bottom_str = array_to_string(rotate_clockwise(bottom))
+    left_str = array_to_string(rotate_clockwise(rotate_clockwise(left)))
     middle_str = array_to_string(middle)
     middle_lines = middle_str.split('\n')
 

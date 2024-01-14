@@ -4,7 +4,7 @@ from ShellThrow import ShellThrow
 
 
 class BarjisGame:
-    MAX_DEPTH = 5
+    MAX_DEPTH = 10
 
     def __init__(self, initial_board_data):
         from State import State
@@ -15,19 +15,35 @@ class BarjisGame:
         }
         self.expectiminimax_from_state(self.current_state)
 
+    def find_path(self):
+        path = []
+        temp_state = self.current_state
+        while temp_state:
+            path.append(temp_state)
+            temp_state = temp_state.parent
+        path.reverse()
+        return path
+
     def start(self):
         while not self.has_ended():
             current_player = self.players[self.current_state.player_id]
             if current_player.mode == Player.MODE_HUMAN:
                 self.current_state = self.current_state.human_play()
+                # DEBUG
+                # if not self.current_state:
+                #     print('here is the null')
             else:
-                self.current_state = self.current_state.computer_play()
+                new_state = self.current_state.computer_play()
+                if not new_state:
+                    self.expectiminimax_from_state(self.current_state)
+                    new_state = self.current_state.computer_play()
+                self.current_state = new_state
         if self.current_state.winner() == 1:
             print('congratulations! you have won the game against computer!')
         else:
             print('the computer has won the game against you!')
         print('statistics about the game:')
-        # TODO
+        print('solution path length:' + str(self.find_path()))
 
     @staticmethod
     def expectiminimax_from_state(state, depth=MAX_DEPTH):
@@ -45,15 +61,16 @@ class BarjisGame:
                 for child in state.children[throw_result]:
                     evaluation_value = max(BarjisGame.expectiminimax_from_state(child, depth - 1),
                                            evaluation_value)
-                expected_value += evaluation_value * ShellThrow.probability[throw_result]
 
             else:  # minimizing player
                 evaluation_value = float('inf')
                 for child in state.children[throw_result]:
                     evaluation_value = min(BarjisGame.expectiminimax_from_state(child, depth - 1),
                                            evaluation_value)
-                expected_value += evaluation_value * ShellThrow.probability[throw_result]
+
+            expected_value += evaluation_value * ShellThrow.probability[throw_result]
             state.cost = expected_value
+            state.best_child[throw_result] = state.children[throw_result][0]
             for child in state.children[throw_result]:
                 if child.cost == evaluation_value:
                     state.best_child[throw_result] = child
@@ -61,5 +78,5 @@ class BarjisGame:
             return state.cost
 
     def has_ended(self):
-        print(type(self.current_state))
+        # print(type(self.current_state))
         return self.current_state.is_terminal()

@@ -121,16 +121,17 @@ class Board:
 
     def get_print_str_for_index(self, index, lane):
         pieces_in_block = self.get_pieces_in_position(index, lane)
+        numbers_in_block = [piece.number for piece in pieces_in_block]
         if not pieces_in_block:
             if index in self.x_blocks and lane == Board.MAIN_LANE:
-                return ' X '
-            return '   '
+                return 'X'
+            return ' '
 
         player_id = pieces_in_block[0].player_id
-        return f"{player_id}:{','.join(map(str, pieces_in_block))}"
+        return f"{player_id}:{','.join(map(str, numbers_in_block))}"
 
     def __str__(self):
-        data = [[['' for _ in range(8)] for _ in range(3)] for _ in range(4)]
+        data = [[[' ' for _ in range(8)] for _ in range(3)] for _ in range(4)]
 
         index = 60
         # let's clarify why we chose 60 as the starting index: we assumed that index 0 is the index the first player
@@ -165,6 +166,11 @@ class Board:
             data[2][1][j] = self.get_print_str_for_index(j, self.PLAYER2_LANE)
             j += 1
 
+        # DEBUG
+        # print(data[0], end='\n\n')
+        # print(data[1], end='\n\n')
+        # print(data[2], end='\n\n')
+        # print(data[3], end='\n\n')
         return output_manip.get_board_str(data[0], data[1], data[2], data[3])
 
     def move_piece_and_copy(self, piece: Piece, throw: ShellThrow):
