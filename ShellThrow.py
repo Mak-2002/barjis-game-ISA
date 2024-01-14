@@ -2,7 +2,7 @@ import random
 
 
 class ShellThrow:
-    moves_due_result = {
+    moves_due_to_result = {
         0: 6,
         1: 10,
         2: 2,
@@ -44,8 +44,9 @@ class ShellThrow:
             self.result = number
 
         self.khal = int(self.has_khal())
-        self.moves = ShellThrow.moves_due_result[self.result]
+        self.moves = ShellThrow.moves_due_to_result[self.result]
         self.probability = ShellThrow.probability[self.result]
+        self.name = ShellThrow.move_names[self.result]
 
     def has_khal(self):
         return self.result in [1, 5]
@@ -56,6 +57,3 @@ class ShellThrow:
     def omit_khal(self):
         self.moves += self.khal
         self.khal = 0
-
-    def name(self):
-        return self.move_names[self.result]

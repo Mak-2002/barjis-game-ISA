@@ -1,18 +1,3 @@
-def rotate_clockwise(matrix):
-    if not matrix or not matrix[0]:
-        return matrix
-
-    num_rows, num_cols = len(matrix), len(matrix[0])
-
-    rotated_matrix = [[0] * num_rows for _ in range(num_cols)]
-
-    for i in range(num_rows):
-        for j in range(num_cols):
-            rotated_matrix[j][num_rows - 1 - i] = matrix[i][j]
-
-    return rotated_matrix
-
-
 # Function to convert array to a string
 def array_to_string(arr):
     return '\n'.join([' '.join('[ {} ]'.format(c) for c in row) for row in arr])
@@ -81,6 +66,6 @@ def get_board_str(top, right, bottom, left):
 
     return result_str
 
-
 # Print the board with all four arms
-print(get_board_str(top_arm, right_arm, bottom_arm, left_arm))
+# print(get_board_str(top_arm, right_arm, bottom_arm, left_arm))
+# DEBUG

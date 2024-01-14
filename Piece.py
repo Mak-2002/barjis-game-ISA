@@ -1,25 +1,16 @@
 import copy
 
-from Board import Board
 from ShellThrow import ShellThrow
 
 
 class Piece:
-    """
-     The class that represents a playing piece for one player
-     it contains:
-        position
-        player
-        lane
-    """
-
     OUT_OF_BOARD = 0
     IN_BOARD = 1
     IN_KITCHEN = 2
 
     def __init__(self, player_id: int, number: int):
-        self.number = number
         self.player_id = player_id
+        self.number = number
         self.position = -1
         self.lane = -1
         self.last_lane = False
@@ -48,11 +39,13 @@ class Piece:
         self.position = 0
         self.steps_taken = 0
         self.lane = self.player_id
+        self.last_lane = False
         self.status = Piece.IN_BOARD
 
     def enter_kitchen(self):
         self.position = -1
         self.lane = -1
+        self.last_lane = False
         self.status = Piece.IN_KITCHEN
 
     def assign_lane(self):
@@ -65,17 +58,28 @@ class Piece:
             self.lane = self.player_id
             self.last_lane = False
         elif steps_taken <= 75:
-            self.lane = Board.MAIN_LANE
-            self.position = Board.update_index(0, steps_taken - 7 + (self.player_id - 1) * 36)
+            self.lane = 0
+            self.last_lane = False
+            self.position = (steps_taken - 7 + (self.player_id - 1) * 34) % 68
         elif steps_taken < 83:
             self.position = 6 - (steps_taken - 76)
             self.lane = self.player_id
             self.last_lane = True
         elif steps_taken == 83:
             self.enter_kitchen()
+            return self
+        self.status = Piece.IN_BOARD
         return self
 
-    def get_new_piece_after_applying_move(self, throw: ShellThrow):
+    def apply_move_and_copy(self, throw: ShellThrow, board):
         new_piece = copy.copy(self)
         new_piece.steps_taken += throw.moves
-        return new_piece.assign_lane()
+        new_piece = new_piece.assign_lane()
+        if not new_piece:
+            return None
+        pieces_in_block = board.get_pieces_in_position(new_piece.position, new_piece.lane)
+        if pieces_in_block and pieces_in_block[0].player_id != new_piece.player_id:
+            if new_piece.position in board.x_blocks:
+                return None
+            board.remove_pieces_from_main_lane_block(new_piece.position)
+        return new_piece
